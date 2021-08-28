@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editor: {{ game.title }}{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/manager.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/editor.css') }}" rel="stylesheet" />
+    <script src="{{ asset('js/slideDown.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+<div class="list-container">
+    <div class="game-card-container">
+        <div class="image-container">
+            <img src="{% if (game.imagecover != null) %}{{  game.imagecover.url }} {% endif %}" alt="GameCover">
+            <div class="button-container">
+                <a href="{{ asset('play/' ~ game.id ~ '') }}" target="_blank"><button class="button-play"><span>Play</span></button></a>
+                <button class="button-edit" onclick="openModal('updateform')"><span>Edit</span></button>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-card-top"><p>{{ game.title }}</p></div>
+            <div class="ribbon ribbon-top-right"><span>{{ game.creator.username }}</span></div>
+            <div class="content-container">
+                <p>{{ game.description|nl2br }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="cmds-container">
+        <button onclick="openModal('updateform')"><span>Edit</span></button>
+        <button onclick="openModal('sceneform')"><span>Add Scene</span></button>
+        <button onclick="openModal('deleteform', 'flex')"><span>Delete</span></button>
+    </div>
+    <div class="scenes-container">
+        <div class="scene-card">
+            <a href="{{ asset('editor/' ~ game.id ~ '/intro') }}"><div class="scene-title"><p>Intro</p></div></a>
+        </div>
+        {% for scene in scenes %}
+            <div class="scene-card" style="margin-bottom: 25px;">
+                <div class="scene-title" onclick="slideDown(this)"><p>{{ scene.title }}</p></div>
+                <div class="scene-description" expand="false">
+                    <div class="scene-description-content">
+                        <p>{{ scene.description|nl2br }}</p>
+                    </div>
+                    <div class="scene-description-bottom">
+                        <a href="{% if (scene.isbattle == false) %}{{ asset('editor/' ~ game.id ~ '/scene/story/' ~ scene.id ~ '') }}
+                            {% else %}{{ asset('editor/' ~ game.id ~ '/scene/battle/' ~ scene.id ~ '') }}{% endif %}">Edit</a>
+                        <a onclick="openModalDeleteScene('{{ scene.id }}', 'flex')">Delete</a>
+                        <span class="scene-type">{% if (scene.isbattle == true) %}Battle{% else %}Story{% endif %} #{{ scene.sceneorder }}</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div style="height: 100px"></div>
+    </div>
+</div>
+
+{# update #}
+<div class="form-modal" id="updateform">
+    {{ form_start(form, { attr : { 'class' : 'form-content form-animate' } }) }}
+        <div class="form-close">
+            <p class="form-title">Update</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {{ form_widget(form.title) }}
+            {{ form_widget(form.description) }}
+            <div class="file-upload" id="fileUpload">
+                <div class="file-select">
+                    <div class="file-select-button" id="fileName">Background</div>
+                    <div class="file-select-name" id="noFile">No file...</div> 
+                    {{ form_widget(form.cover.image, { 'attr' : { 'onchange' : "selectFile(this, 'fileUpload', 'noFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(form.imageselect) }}
+            {{ form_widget(form.create, { 'label': 'Update' }) }}
+        </div>
+    {{ form_end(form) }}
+</div>
+
+{# add scene #}
+<div class="form-modal" id="sceneform">
+    {{ form_start(sceneform, { attr : { 'class' : 'form-content form-animate' } }) }}
+        <div class="form-close">
+            <p class="form-title">Add Scene</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {{ form_widget(sceneform.title) }}
+            {{ form_widget(sceneform.sceneorder) }}
+            {{ form_widget(sceneform.description) }}
+            <label class="checkbox-container">Battle
+                {{ form_widget(sceneform.isbattle) }}
+                <span class="checkmark"></span>
+            </label>
+            <div class="file-upload" id="bgUpload">
+                <div class="file-select">
+                    <div class="file-select-button" id="bgFileName">Background</div>
+                    <div class="file-select-name" id="bgNoFile">No file...</div> 
+                    {{ form_widget(sceneform.bg.image, { 'attr' : { 'onchange' : "selectFile(this, 'bgUpload', 'bgNoFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(sceneform.imageselect) }}
+            <div class="file-upload" id="bgmUpload">
+                <div class="file-select">
+                    <div class="file-select-button" id="bgmFileName">BG Music</div>
+                    <div class="file-select-name" id="bgmNoFile">No file...</div> 
+                    {{ form_widget(sceneform.bgm.sound, { 'attr' : { 'onchange' : "selectFile(this, 'bgmUpload', 'bgmNoFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(sceneform.soundselect) }}
+            {{ form_widget(sceneform.create, { 'label': 'Add Scene' }) }}
+        </div>
+    {{ form_end(sceneform) }}
+</div>
+
+{# delete #}
+<div class="form-modal" id="deleteform">
+    <form class="form-content form-animate" action="{{ asset('game/delete') }}" method="POST">
+        <div class="form-close">
+            <p class="form-title">Are you sure you want to delete?</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="gameid" value="{{ game.id }}">
+            <button type="submit" class="submit-btn">Confirm</button>
+        </div>
+    </form>
+</div>
+
+{# scene delete #}
+<div class="form-modal" id="deletesceneform">
+    <form class="form-content form-animate" action="{{ asset('scene/delete') }}" method="POST">
+        <div class="form-close">
+            <p class="form-title">Are you sure you want to delete?</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="sceneid" value="" id="deletesceneid">
+            <button type="submit" class="submit-btn">Confirm</button>
+        </div>
+    </form>
+</div>
+<script>
+    function openModalDeleteScene(id, display = "block") {
+        document.getElementById("deletesceneform").style.display = display;
+        document.getElementById("deletesceneid").value = id;
+    }
+</script>
+{% endblock %}

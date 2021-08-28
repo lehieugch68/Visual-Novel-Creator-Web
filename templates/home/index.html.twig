@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/home.css') }}" rel="stylesheet" />
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        {% for game in games %}
+        <div class="card">
+            <div class="face face1" {% if game.imagecover != null %} style="background-image: url('{{ game.imagecover.url }}')" {% endif %}>
+                <div class="content">         
+                    <a href="{{ asset('play/' ~ game.id ~ '') }}">{{ game.title }}</a>
+                </div>
+                <div class="ribbon-translucent ribbon-top-left"><span>{{ game.creator.username }}</span></div>
+            </div>
+            <div class="face face2">
+                <div class="content">
+                    <p>{{ game.description|nl2br }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}

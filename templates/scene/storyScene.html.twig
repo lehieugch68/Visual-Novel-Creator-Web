@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ game.title }}: {{ scene.title }}{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/manager.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/editor.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/scene.css') }}" rel="stylesheet" />
+    <script src="{{ asset('js/slideDown.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/scene.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+<div class="list-container">
+    <div class="game-card-container" style="margin-bottom: 20px;">
+        <div class="image-container" style="width: 350px">
+            <img src="{% if (scene.background != null) %}{{ scene.background.url }} {% endif %}" alt="Background">
+            <div class="button-container" style="top: 15px; height: 170px;">
+                <a href="{{ asset('editor/' ~ game.id ~ '') }}"><button style="width: 250px; background: rgba(50, 200, 50, 0.8);"><span>Game Page</span></button></a>
+                <button style="width: 250px; background: rgba(100, 100, 200, 0.8);" onclick="openModal('updatesceneform')"><span>Edit</span></button>
+                <button style="width: 250px; background: rgba(200, 50, 50, 0.8);" onclick="openModal('deletesceneform', 'flex')"><span>Delete</span></button>
+            </div>
+        </div>
+        <div class="game-card" style="width: calc(100% - 370px);">
+            <div class="game-card-top"><p>{{ game.title }}: {{ scene.title }}</p></div>
+            <div class="ribbon ribbon-top-right"><span>{{ game.creator.username }}</span></div>
+            <div class="content-container">
+                <p>{{ scene.description|nl2br }}</p>
+            </div>
+        </div>
+    </div>
+    <p class="scene-name">Conversation</p>
+    <div class="context-container">
+        {% for context in scene.gameStoryScenes %}
+            <div class="scene-card" style="margin-bottom: 25px;">
+                <div class="scene-title" onclick="slideDown(this)"><p>{{ context.talker }}</p></div>
+                <div class="scene-description" expand="false">
+                    <div class="scene-description-content">
+                        <p>{{ context.text|nl2br }}</p>
+                    </div>
+                    <div class="scene-description-bottom">
+                        <a onclick="openModalUpdateContext('{{ context.id }}')">Edit</a>
+                        <a onclick="openModalDeleteContext('{{ context.id }}', 'flex')">Delete</a>
+                        <span class="scene-type">#{{ context.contextorder }}</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div style="height: 100px"></div>
+    </div>
+</div>
+
+<div class="plus-container"></div>
+<div class="plus-button" onclick="openModal('addcontextform')">
+    <div class="plus-icon">+</div>
+    <span class="hint-radius"></span><div class="hint-content"><p>Add</p></div>
+</div>
+
+{# add context #}
+<div class="form-modal" id="addcontextform">
+    {{ form_start(form, { attr : { 'class' : 'form-content form-animate' } }) }}
+        <div class="form-close">
+            <p class="form-title">Add Conversation</p>
+            <span class="form-close-btn" title="Close">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {{ form_widget(form.contextorder) }}
+            {{ form_widget(form.talker) }}
+            {{ form_widget(form.text) }}
+            <div class="file-upload" id="talkerUpload">
+                <div class="file-select">
+                    <div class="file-select-button">Talker Image</div>
+                    <div class="file-select-name" id="talkerNoFile">No file...</div> 
+                    {{ form_widget(form.talkerimg.image, { 'attr' : { 'onchange' : "selectFile(this, 'talkerUpload', 'talkerNoFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(form.talkerimgselect) }}
+            <div class="file-upload" id="charUpload">
+                <div class="file-select">
+                    <div class="file-select-button">Object Image</div>
+                    <div class="file-select-name" id="charNoFile">No file...</div> 
+                    {{ form_widget(form.characterimg.image, { 'attr' : { 'onchange' : "selectFile(this, 'charUpload', 'charNoFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(form.characterimgselect) }}
+            {{ form_widget(form.create, { 'label': 'Add Conversation' }) }}
+        </div>
+    {{ form_end(form) }}
+</div>
+
+{# update scene #}
+<div class="form-modal" id="updatesceneform">
+    {{ form_start(sceneform, { attr : { 'class' : 'form-content form-animate' } }) }}
+        <div class="form-close">
+            <p class="form-title">Update</p>
+            <span class="form-close-btn" title="Close">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {{ form_widget(sceneform.title) }}
+            {{ form_widget(sceneform.sceneorder) }}
+            {{ form_widget(sceneform.description) }}
+            <div class="file-upload" id="bgUpload">
+                <div class="file-select">
+                    <div class="file-select-button" id="bgFileName">Background</div>
+                    <div class="file-select-name" id="bgNoFile">No file...</div> 
+                    {{ form_widget(sceneform.bg.image, { 'attr' : { 'onchange' : "selectFile(this, 'bgUpload', 'bgNoFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(sceneform.imageselect) }}
+            <div class="file-upload" id="bgmUpload">
+                <div class="file-select">
+                    <div class="file-select-button" id="bgmFileName">BG Music</div>
+                    <div class="file-select-name" id="bgmNoFile">No file...</div> 
+                    {{ form_widget(sceneform.bgm.sound, { 'attr' : { 'onchange' : "selectFile(this, 'bgmUpload', 'bgmNoFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(sceneform.soundselect) }}
+            {{ form_widget(sceneform.create, { 'label': 'Update' }) }}
+        </div>
+    {{ form_end(sceneform) }}
+</div>
+
+{# delete scene #}
+<div class="form-modal" id="deletesceneform">
+    <form class="form-content form-animate" action="{{ asset('scene/delete') }}" method="POST">
+        <div class="form-close">
+            <p class="form-title">Are you sure you want to delete?</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="sceneid" value="{{ scene.id }}" id="deletesceneid">
+            <button type="submit" class="submit-btn">Confirm</button>
+        </div>
+    </form>
+</div>
+
+{# delete context #}
+<div class="form-modal" id="deletecontextform">
+    <form class="form-content form-animate" action="{{ asset('context/story/delete') }}" method="POST">
+        <div class="form-close">
+            <p class="form-title">Are you sure you want to delete?</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="contextid" value="" id="deletecontextid">
+            <button type="submit" class="submit-btn">Confirm</button>
+        </div>
+    </form>
+</div>
+
+{# update context #}
+<div class="form-modal" id="updateContextForm">
+    <form class="form-content form-animate" id="updateContextData" enctype="multipart/form-data" method="POST">
+        <div class="form-close">
+            <p class="form-title">Update Conversation</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="contextid" value="" id="updateContextId">
+            <input type="number" name="context_order" value="" id="updateContextOrder" placeholder="Order">
+            <input type="text" name="context_talker" value="" id="updateContextTalker" placeholder="Talker">
+            <textarea name="context_text" id="updateContextText" placeholder="Text"></textarea>
+            <div class="file-upload" id="utalkerUpload">
+                <div class="file-select">
+                    <div class="file-select-button">Talker Image</div>
+                    <div class="file-select-name" id="utalkerNoFile">No file...</div> 
+                    <input type="file" accept="image/*" name="context_talker_icon" onchange="selectFile(this, 'utalkerUpload', 'utalkerNoFile')">
+                </div>
+            </div>
+            <select id="updateContextSelectTalkerIcon" name="context_select_talker_icon">
+                <option value=""></option>
+            </select>
+            <div class="file-upload" id="ucharUpload">
+                <div class="file-select">
+                    <div class="file-select-button">Object Image</div>
+                    <div class="file-select-name" id="ucharNoFile">No file...</div> 
+                    <input type="file" accept="image/*" name="context_charimg" onchange="selectFile(this, 'ucharUpload', 'ucharNoFile')">
+                </div>
+            </div>
+            <select id="updateContextSelectCharImg" name="context_select_charimg">
+                <option value=""></option>
+            </select>
+            <span class="form-feedback" id="updatefeedback"></span>
+            <button tpye="submit" class="submit-btn" disabled="true" style="cursor: not-allowed;" id="updateContextBtn">Update</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

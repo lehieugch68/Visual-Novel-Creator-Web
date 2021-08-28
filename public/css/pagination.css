@@ -1,0 +1,24 @@
+.pagination {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 100px;
+}
+  
+.pagination a {
+    color: white;
+    font-size: 20px;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+  
+.pagination a.active {
+    background-color: cornflowerblue;
+    color: white;
+}
+  
+.pagination a:hover:not(.active) {background-color: #333;}

@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manager{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/manager.css') }}" rel="stylesheet" />
+
+{% endblock %}
+
+{% block body %}
+<div class="list-container">
+    {% for game in games %}
+        <div class="game-card-container">
+        <div class="image-container">
+            <img src="{% if (game.imagecover != null) %}{{  game.imagecover.url }} {% endif %}" alt="GameCover">
+            <div class="button-container">
+                <a href="{{ asset('play/' ~ game.id ~ '') }}" target="_blank"><button class="button-play"><span>Play</span></button></a>
+                <a href="{{ asset('editor/' ~ game.id ~ '') }}" target="_blank"><button class="button-edit"><span>Edit</span></button></a>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-card-top"><p>{{ game.title }}</p></div>
+            <div class="ribbon ribbon-top-right"><span>{{ game.creator.username }}</span></div>
+            <div class="content-container">
+                <p>{{ game.description | raw }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="pagination">
+        <a href="{{ asset('/manager') }}">&laquo;</a>
+        {% set k = 2 %}
+        {% for i in range(0, k-1) %}
+            {% set j = k - i %}
+            {% if (currentpage > j) %}
+                {% set page = currentpage - j %}
+                <a href="{{ asset('/manager/page-' ~ page  ~ '') }}">{{ page }}</a>
+            {% endif %}
+        {% endfor %}
+        <a class="active" href="{{ asset('/manager/page-' ~ currentpage ~ '') }}">{{ currentpage }}</a>
+        {% for i in range(1, k) %}
+            {% set page = currentpage + i %}
+            {% if (totalpage >= page) %}
+                <a href="{{ asset('/manager/page-' ~ page  ~ '') }}">{{ page }}</a>
+            {% endif %}
+        {% endfor %}
+        <a href="{{ asset('/manager/page-' ~ totalpage ~ '') }}">&raquo;</a>
+    </div>
+</div>
+<div class="plus-container"></div>
+<div class="plus-button" onclick="openModal('createForm')">
+    <div class="plus-icon">+</div>
+    <span class="hint-radius"></span><div class="hint-content"><p>Create</p></div>
+</div>
+
+{# create #}
+<div class="form-modal" id="createForm">
+    {{ form_start(form, { attr : { 'class' : 'form-content form-animate' }} ) }}
+        <div class="form-close">
+            <p class="form-title">Create Game</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {{ form_widget(form.title) }}
+            {{ form_widget(form.description) }}
+            <div class="file-upload" id="fileUpload">
+                <div class="file-select">
+                    <div class="file-select-button" id="fileName">Background</div>
+                    <div class="file-select-name" id="noFile">No file...</div> 
+                    {{ form_widget(form.cover.image, { 'attr' : { 'onchange' : "selectFile(this, 'fileUpload', 'noFile')" } }) }}
+                </div>
+            </div>
+            {{ form_widget(form.imageselect) }}
+            {{ form_widget(form.create, { 'label': 'Create' }) }}
+        </div>
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}

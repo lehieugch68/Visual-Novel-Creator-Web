@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/game/modal.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/game/message.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/game/bar.css') }}" rel="stylesheet" />
+    <script src="{{ asset('js/game/main.js') }}" type="module"></script>
+{% endblock %}
+
+{% block body %}
+    <button class="modal-open" id="modal-open">BẮT ĐẦU CHƠI</button>
+    <div class="modal-box" id="modal-box">
+        <div class="modal-box-content" id="modal-box-content" style="height: 100%;">
+            
+        </div>
+        <button class="modal-close" id="modal-close"><span class="visuallyhidden">Đóng</span></button>
+    </div>
+    <audio src="" preload="auto" id="bgm" loop="loop"></audio>
+    <form style="display: none;" method="GET" action="{{ asset('api/game/get/source/' ~ game.id ~ '') }}" id="getForm"></form>
+{% endblock %}

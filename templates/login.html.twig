@@ -1,0 +1,18 @@
+<div class="form-modal" id="loginform">
+    <form class="form-content form-animate" id="logindata" style="max-width: 500px;">
+        <div class="form-close">
+            <p class="form-title">Sign In</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {# <input type="hidden" value="{{ app.request.uri }}" name="referer"> #}
+            {# <label for="username"><i class="fas fa-portrait"></i> <b>Tài khoản</b></label> #}
+            <input type="text" placeholder="Username" id="username" name="username">
+            {# <label for="password"><i class="fas fa-lock"></i> <b>Mật khẩu</b></label> #}
+            <input type="password" placeholder="Password" id="password" name="password">
+            <span class="form-feedback" id="loginfeedback"></span>
+            <button type="button" class="submit-btn" id="loginsubmit">Sign In</button>
+        </div>
+    </form>
+</div>
+<script src="{{ asset('js/login.js') }}" type="text/javascript"></script>

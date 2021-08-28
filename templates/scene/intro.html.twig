@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ game.title }}: Intro{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('css/manager.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/editor.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/scene.css') }}" rel="stylesheet" />
+    <script src="{{ asset('js/slideDown.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('js/intro.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+<div class="list-container">
+    <div class="game-card-container" style="margin-bottom: 20px;">
+        <div class="image-container">
+            <img src="{% if (game.imagecover != null) %}{{  game.imagecover.url }} {% endif %}" alt="GameCover">
+            <div class="button-container">
+                <a href="{{ asset('play/' ~ game.id ~ '') }}" target="_blank"><button class="button-play"><span>Play</span></button></a>
+                <a href="{{ asset('editor/' ~ game.id ~ '') }}"><button class="button-edit"><span>Edit</span></button></a>
+            </div>
+        </div>
+        <div class="game-card">
+            <div class="game-card-top"><p>{{ game.title }}</p></div>
+            <div class="ribbon ribbon-top-right"><span>{{ game.creator.username }}</span></div>
+            <div class="content-container">
+                <p>{{ game.description|nl2br }}</p>
+            </div>
+        </div>
+    </div>
+    <p class="scene-name">Mở đầu</p>
+    <div class="context-container">
+        {% for intro in intros %}
+            <div class="scene-card" style="margin-bottom: 25px;">
+                <div class="scene-title" onclick="slideDown(this)"><p>{{ intro.title }}</p></div>
+                <div class="scene-description" expand="false">
+                    <div class="scene-description-content">
+                        <p style="text-align: center;">{{ intro.content|nl2br }}</p>
+                    </div>
+                    <div class="scene-description-bottom">
+                        <a onclick="openModalUpdateScene('{{ intro.id }}')">Edit</a>
+                        <a onclick="openModalDeleteScene('{{ intro.id }}', 'flex')">Delete</a>
+                        <span class="scene-type">#{{ intro.introorder }}</span>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div style="height: 100px"></div>
+    </div>
+</div>
+
+<div class="plus-container"></div>
+<div class="plus-button" onclick="openModal('addintroform')">
+    <div class="plus-icon">+</div>
+    <span class="hint-radius"></span><div class="hint-content"><p>Add Scene</p></div>
+</div>
+
+{# add intro #}
+<div class="form-modal" id="addintroform">
+    {{ form_start(form, { attr : { 'class' : 'form-content form-animate' } }) }}
+        <div class="form-close">
+            <p class="form-title">Add Intro</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            {{ form_widget(form.title) }}
+            {{ form_widget(form.introorder) }}
+            {{ form_widget(form.content) }}
+            {{ form_widget(form.create, { 'label': 'Add' }) }}
+        </div>
+    {{ form_end(form) }}
+</div>
+
+{# update #}
+<div class="form-modal" id="updatesceneform">
+    <form class="form-content form-animate" id="updatedata">
+        <div class="form-close">
+            <p class="form-title">Edit Intro</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="introid" value="" id="updatesceneid">
+            <input type="text" name="title" value="" id="updatescenetitle" placeholder="Title">
+            <input type="number" name="introorder" value="" id="updatesceneorder" placeholder="Order">
+            <textarea name="content" id="updatescenecontent" placeholder="Content"></textarea>
+            <span class="form-feedback" id="updatefeedback"></span>
+            <button tpye="button" class="submit-btn" disabled="true" style="cursor: not-allowed;" id="updatescenebtn" onclick="submitUpdate(this)">Update</button>
+        </div>
+    </form>
+</div>
+
+{# delete #}
+<div class="form-modal" id="deletesceneform">
+    <form class="form-content form-animate" action="{{ asset('intro/delete') }}" method="POST">
+        <div class="form-close">
+            <p class="form-title">Are you sure you want to delete?</p>
+            <span class="form-close-btn" title="Đóng">&times;</span>
+        </div>
+        <div class="form-content-container"><br>
+            <input type="hidden" name="introid" value="" id="deletesceneid">
+            <button type="submit" class="submit-btn">Confirm</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
